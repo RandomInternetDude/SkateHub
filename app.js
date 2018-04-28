@@ -2,14 +2,33 @@ var express     = require("express"),
     app         = express(),
     bodyParser  = require("body-parser"),
     mongoose    = require("mongoose"),
+    passport    = require("passport"),
+    LocalStrategy = require("passport-local"),
     Skatepark   = require("./models/skatepark"),
     Comment     = require("./models/comment"),
+    User        = require("./models/user"),
     seedDB      = require("./seeds");
     
 mongoose.connect("mongodb://localhost/yelp_skate");
 app.use(bodyParser.urlencoded({extended: true}));
 app.set ("view engine", "ejs");
+app.use(express.static(__dirname + "/public"));
 seedDB();
+
+// passport configuration
+app.use(require("express-session")({
+    secret:"once again colt talks about rusty his sausage looking dog",
+    resave: false,
+    saveUninitialized: false,
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new LocalStrategy(User.authenticate()));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
+
 
 
 
@@ -20,6 +39,7 @@ app.get("/", function(req, res){
 // Index - show all Skateparks
 app.get("/skateparks", function(req, res){
 //   get all skateparks from database
+
    Skatepark.find({}, function(err, Skatepark){
          if(err){
              console.log(err);
@@ -76,7 +96,7 @@ app.get("/skateparks/:id", function(req, res){
 // COMMENTS ROUTES
 // ====================
 
-app.get("/skateparks/:id/comments/new" ,function(req, res){
+app.get("/skateparks/:id/comments/new", isLoggedIn ,function(req, res){
     // 
     Skatepark.findById(req.params.id, function (err , skatepark){
         if(err){
@@ -87,7 +107,7 @@ app.get("/skateparks/:id/comments/new" ,function(req, res){
     });
 });
 
-app.post("/skateparks/:id/comments", function(req, res){
+app.post("/skateparks/:id/comments", isLoggedIn, function(req, res){
    //lookup campground using ID
    Skatepark.findById(req.params.id, function(err, skatepark){
        if(err){
@@ -113,14 +133,58 @@ app.post("/skateparks/:id/comments", function(req, res){
 
 
 
+// =============
+// auth routes
+// =============
+
+// show resgister form
+
+app.get("/register", function(req, res) {
+    res.render("register");
+});
+// handles sign up form logic
+app.post("/register", function(req, res) {
+    var newUser = new User({username: req.body.username});
+    User.register(newUser,req.body.password, function (err , user){
+        if(err){
+            console.log(err);
+            return res.render("register");
+        }
+        passport.authenticate("local")(req, res, function(){
+            res.redirect("/skateparks");
+        });
+    });
+});
+
+//show login form
+
+app.get("/login", function(req, res) {
+    res.render("login");
+});
+
+// handle login logic
+
+app.post("/login", passport.authenticate("local",
+    {
+        successRedirect:"/skateparks",
+        failureRedirect:"/login",
+    }), function(req, res) {
+    res.send("login logic happens here!");
+});
 
 
+app.get("/logout", function(req, res) {
+    req.logout();
+    res.redirect("/skateparks");
+});
 
 
-
-
-
-
+function isLoggedIn(req, res, next){
+    if(req.isAuthenticated()){
+        return next();
+    }
+    res.redirect("/login");
+}
 
 
 
