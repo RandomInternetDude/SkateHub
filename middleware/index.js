@@ -1,7 +1,7 @@
 var Skatepark = require("../models/skatepark");
 var Comment = require("../models/comment");
 
-// all the middleare goes here
+
 var middlewareObj = {};
 
 middlewareObj.checkSkateparkOwnership = function(req, res, next) {
