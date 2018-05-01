@@ -28,11 +28,12 @@ router.post("/", middleware.isLoggedIn, function (req, res){
     var name = req.body.name;
     var image = req.body.image;
     var Description= req.body.description;
+    var Price = req.body.price
     var author ={
         id: req.user._id,
         username: req.user.username
     }
-    var newSkatepark = {name: name, image: image, description: Description, author:author};
+    var newSkatepark = {name: name, image: image, description: Description, price: Price, author:author};
     Skatepark.create(newSkatepark , function(err, newlyCreatedSkatepark){
         if(err){
             console.log(err);
