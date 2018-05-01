@@ -19,10 +19,12 @@ router.post("/register", function(req, res) {
     var newUser = new User({username: req.body.username});
     User.register(newUser,req.body.password, function (err , user){
         if(err){
+            req.flash("error", err.message);
             console.log(err);
             return res.render("register");
         }
         passport.authenticate("local")(req, res, function(){
+            req.flash("success", "Welcome to SkateHub " + user.username);
             res.redirect("/skateparks");
         });
     });
@@ -41,11 +43,11 @@ router.post("/login", passport.authenticate("local",
         successRedirect:"/skateparks",
         failureRedirect:"/login",
     }), function(req, res) {
-    res.send("login logic happens here!");
 });
 
 
 router.get("/logout", function(req, res) {
+    req.flash("success", "Logged you out!");
     req.logout();
     res.redirect("/skateparks");
 });
