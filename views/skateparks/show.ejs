@@ -3,7 +3,7 @@
 <div class="container">
     <div class="row"> 
         <div class="col-md-3">
-            <p class="lead"> yelpskate</p>
+            <p class="lead"> Yelpskate</p>
             <div class="list-group"> 
                 <li class="list-group-item active">Info 1</li>
                 <li class="list-group-item">Info 2</li>
@@ -17,6 +17,15 @@
                     <h4 class="pull-right"> $8.00/Sesh</h4>
                     <h4><a><%=skatepark.name%></a></h4>
                     <p><%= skatepark.description %></p>
+                    <p>
+                       <strong> <em>Submitted by <%= skatepark.author.username%></em> </strong>
+                    </p>
+                    <% if(currentUser && skatepark.author.id.equals(currentUser._id)){%>
+                      <a class="btn btn-warning" href="/skateparks/<%=skatepark._id%>/edit">Edit</a>
+                      <form style="inline"id="deleteform" action="/skateparks/<%= skatepark._id %>?_method=DELETE" method="POST">
+                          <button class="btn btn-danger" >Delete</button>
+                      </form>
+                      <% }%>
                 </div>
             </div>
             <div class="well">
@@ -31,6 +40,13 @@
                         <p>
                        <%= comment.text %>
                         </p>
+                        <% if(currentUser && comment.author.id.equals(currentUser._id)){ %>
+                        <a class="btn btn-xs btn-warning" 
+                        href="/skateparks/<%=skatepark._id %>/comments/<%=comment._id%>/edit">Edit</a>
+                        <form id="deleteform" action="/skateparks/<%=skatepark._id %>/comments/<%=comment._id %>?_method=DELETE" method="POST">
+                                <input type="submit" class="btn btn-xs btn-danger" value="Delete">
+                        </form>
+                        <% } %>
                     </div>
                 </div>
                   
