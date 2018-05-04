@@ -2,6 +2,16 @@ var express = require("express");
 var router = express.Router();
 var Skatepark = require("../models/skatepark");
 var middleware = require("../middleware");
+var NodeGeocoder = require('node-geocoder');
+ 
+var options = {
+  provider: 'google',
+  httpAdapter: 'https',
+  apiKey: process.env.GEOCODER_API_KEY,
+  formatter: null
+};
+ 
+var geocoder = NodeGeocoder(options);
 
 
 
@@ -33,7 +43,15 @@ router.post("/", middleware.isLoggedIn, function (req, res){
         id: req.user._id,
         username: req.user.username
     }
-    var newSkatepark = {name: name, image: image, description: Description, price: Price, author:author};
+    geocoder.geocode(req.body.location, function (err, data) {
+    if (err || !data.length) {
+      req.flash('error', 'Invalid address');
+      return res.redirect('back');
+    }
+    var lat = data[0].latitude;
+    var lng = data[0].longitude;
+    var location = data[0].formattedAddress;
+    var newSkatepark = {name: name, image: image, description: Description, price: Price, author:author,location: location, lat: lat, lng: lng};
     Skatepark.create(newSkatepark , function(err, newlyCreatedSkatepark){
         if(err){
             console.log(err);
@@ -44,7 +62,7 @@ router.post("/", middleware.isLoggedIn, function (req, res){
 
      // redirect back to skateparks page
 });
-
+});
 // New- show form to create new skatepark
 router.get("/new", middleware.isLoggedIn,function(req,res){
     res.render("skateparks/new");
@@ -76,18 +94,30 @@ router.get("/:id/edit",middleware.checkSkateparkOwnership, function(req, res){
 
 
 // update skatepark route
-router.put("/:id",middleware.checkSkateparkOwnership, function (req, res){
-    // find and update correct skatepark
-    Skatepark.findByIdAndUpdate(req.params.id, req.body.skatepark, function(err, updatedSkatepark){
-        if (err){
-            res.redirect("/skateparks");
+router.put("/:id", middleware.checkSkateparkOwnership, function(req, res){
+  geocoder.geocode(req.body.location, function (err, data) {
+    if (err || !data.length) {
+      req.flash('error', 'Invalid address');
+      return res.redirect('back');
+    }
+    req.body.skatepark.lat = data[0].latitude;
+    req.body.skatepark.lng = data[0].longitude;
+    req.body.skatepark.location = data[0].formattedAddress;
+
+    Skatepark.findByIdAndUpdate(req.params.id, req.body.campground, function(err, skatepark){
+        if(err){
+            req.flash("error", err.message);
+            res.redirect("back");
         } else {
-            res.redirect("/skateparks/"+ req.params.id);
+            req.flash("success","Successfully Updated!");
+            res.redirect("/skateparks/" + skatepark._id);
         }
     });
-    // redirect somewhere
-    
+  });
 });
+
+
+
 // Destroy Skatepark Route
 router.delete("/:id",middleware.checkSkateparkOwnership, function(req,res){
     Skatepark.findByIdAndRemove(req.params.id, function(err){
@@ -97,7 +127,7 @@ router.delete("/:id",middleware.checkSkateparkOwnership, function(req,res){
             res.redirect("/skateparks");
         }
     });
-})
+});
 
 
 
