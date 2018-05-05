@@ -104,13 +104,13 @@ router.put("/:id", middleware.checkSkateparkOwnership, function(req, res){
     req.body.skatepark.lng = data[0].longitude;
     req.body.skatepark.location = data[0].formattedAddress;
 
-    Skatepark.findByIdAndUpdate(req.params.id, req.body.campground, function(err, skatepark){
+    Skatepark.findByIdAndUpdate(req.params.id, req.body.skatepark, function(err, skatepark){
         if(err){
             req.flash("error", err.message);
             res.redirect("back");
         } else {
             req.flash("success","Successfully Updated!");
-            res.redirect("/skateparks/" + skatepark._id);
+            res.redirect("/skateparks/" + req.params.id);
         }
     });
   });
