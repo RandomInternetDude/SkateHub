@@ -19,7 +19,7 @@
                     <h4><a><%=skatepark.name%></a></h4>
                     <p><%= skatepark.description %></p>
                     <p>
-                       <strong> <em>Submitted by <%= skatepark.author.username%></em> </strong>
+                       <strong> <em>Submitted by <a href="/users/<%=skatepark.author.id%>"> <%= skatepark.author.username%></a></em> </strong>
                     </p>
                     <% if(currentUser && skatepark.author.id.equals(currentUser._id)){%>
                       <a class="btn btn-warning" href="/skateparks/<%=skatepark._id%>/edit">Edit</a>
