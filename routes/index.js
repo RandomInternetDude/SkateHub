@@ -64,7 +64,7 @@ router.get("/logout", function(req, res) {
 });
 
 // user profile route
-router.get("/user/:id", function(req, res){
+router.get("/users/:id", function(req, res){
    User.findById(req.params.id, function(err, foundUser){
        if (err){
            req.flash("error", "Something went wrong.")
