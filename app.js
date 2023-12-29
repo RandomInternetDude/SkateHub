@@ -19,7 +19,7 @@ var commentRoutes   = require("./routes/comments"),
     indexRoutes     = require("./routes/index");
     
 // mongoose.connect("mongodb://localhost/yelp_skate");
-// mongoose.connect("mongodb://joey:colors@ds111050.mlab.com:11050/skatehub");
+mongoose.connect("mongodb://joey:colors@ds111050.mlab.com:11050/skatehub");
 // need to create new local version of this DB and update this app
 // mongodb://<joey>:<Downwood2>@ds111050.mlab.com:11050/skatehub
 app.use(bodyParser.urlencoded({extended: true}));
@@ -27,7 +27,7 @@ app.set ("view engine", "ejs");
 app.use(express.static(__dirname + "/public"));
 app.use(methodOverride("_method"));
 app.use(flash());
-// seedDB();
+seedDB();
 
 // passport configuration
 app.use(require("express-session")({
