@@ -13,13 +13,19 @@ var express     = require("express"),
     Comment     = require("./models/comment"),
     User        = require("./models/user"),
     seedDB      = require("./seeds");
+    const { MongoClient } = require('mongodb');
     
 var commentRoutes   = require("./routes/comments"),
     skateparkRoutes = require("./routes/skateparks"),
     indexRoutes     = require("./routes/index");
     
-// mongoose.connect("mongodb://localhost/yelp_skate");
-mongoose.connect("mongodb://joey:colors@ds111050.mlab.com:11050/skatehub");
+mongoose.connect("mongodb://localhost/yelp_skate");
+// mongoose.connect("mongodb://joey:colors@ds111050.mlab.com:11050/skatehub")
+// const client = new MongoClient('mongodb://localhost:27017');
+// client.connect(function(err, db) {
+//     if (err) throw err;
+//     console.log('Connected to database successfully!');
+//   });;
 // need to create new local version of this DB and update this app
 // mongodb://<joey>:<Downwood2>@ds111050.mlab.com:11050/skatehub
 app.use(bodyParser.urlencoded({extended: true}));
